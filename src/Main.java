@@ -1,12 +1,16 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Main extends JFrame implements ActionListener {
 
     int DIA,MES,ANIO;
 
-
+    HashMap<Integer,Turno[][][]> TurnosAño = new HashMap<>();
 
     ImagenDeFondo fondo = new ImagenDeFondo(this);
     JMenuBar menubar;
@@ -62,6 +66,7 @@ public class Main extends JFrame implements ActionListener {
 
         Agregar = new JButton("Agregar");
         Agregar.setBounds(370,350,90,30);
+        Agregar.addActionListener(this);
         add(Agregar);
 
         Dia = new JButton("Fecha");
@@ -70,11 +75,126 @@ public class Main extends JFrame implements ActionListener {
         add(Dia);
     }
 
+    //Agregar Turnos
+    class AgregarTurno extends JFrame implements ActionListener{
+
+        String NombreT, ApellidoT, CausaT;
+        int DiaT, MesT, AnioT, HoraT;
+        JLabel N,A,D,M,An, H;
+        JTextField Nombre, Apellido, Dia, Mes, Anio, Hora;
+        JTextArea Causa;
+        JButton Aceptar, Cancelar;
+
+        public AgregarTurno(){
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            setLayout(null);
+            setSize(400,330);
+            setResizable(false);
+            setLocationRelativeTo(null);
+            setVisible(true);
+
+            getContentPane().setBackground(new Color(209, 242, 235));
+
+            Iniciar();
+
+        }
+
+        private void Iniciar(){
+            //Nombre
+            N = new JLabel("Nombre");
+            N.setBounds(10,5,100,30);
+            add(N);
+            Nombre = new JTextField();
+            Nombre.setBounds(10,30,100,25);
+            add(Nombre);
+
+            //Apellido
+            A = new JLabel("Apellido");
+            A.setBounds(10,50,100,30);
+            add(A);
+            Apellido = new JTextField();
+            Apellido.setBounds(10,75,100,25);
+            add(Apellido);
+
+            //Dia
+            D = new JLabel("Dia");
+            D.setBounds(10,95,100,30);
+            add(D);
+            Dia = new JTextField();
+            Dia.setBounds(10,120,100,25);
+            add(Dia);
+
+            //Mes
+            M = new JLabel("Mes");
+            M.setBounds(10,140,100,30);
+            add(M);
+            Mes = new JTextField();
+            Mes.setBounds(10,165,100,25);
+            add(Mes);
+
+            //Año
+            An = new JLabel("Año");
+            An.setBounds(10,185,100,30);
+            add(An);
+            Anio = new JTextField();
+            Anio.setBounds(10,210,100,25);
+            add(Anio);
+
+            //Hora
+            H = new JLabel("Hora");
+            H.setBounds(10,230,100,30);
+            add(H);
+            Hora = new JTextField();
+            Hora.setBounds(10,255,100,25);
+            add(Hora);
+
+            //causa
+            Causa = new JTextArea();
+            Causa.setBounds(130,30,230,205);
+            add(Causa);
+
+            Aceptar = new JButton("Aceptar");
+            Aceptar.setBounds(130,245,100,30);
+            add(Aceptar);
+
+            Cancelar = new JButton("Cancelar");
+            Cancelar.setBounds(260,245,100,30);
+            add(Cancelar);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            NombreT = Nombre.getText();
+            ApellidoT = Apellido.getText();
+            CausaT = Causa.getText();
+
+            try{
+
+                DiaT = Integer.parseInt(Dia.getText());
+                MesT = Integer.parseInt(Mes.getText());
+                AnioT = Integer.parseInt(Anio.getText());
+                HoraT = Integer.parseInt(Hora.getText());
+
+                if(TurnosAño.containsKey(AnioT)){
+
+                }else{
+                    TurnosAño.put(AnioT,new Turno[8][31][12]);
+                }
+
+            }catch (RuntimeException ex){
+
+            }
+
+        }
+    }
+
+    //Eventos del panel principal
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == Dia){
             new Calendario();
         }
+        if(e.getSource() == Agregar) new AgregarTurno();
     }
 
     //Fecha
@@ -188,4 +308,5 @@ public class Main extends JFrame implements ActionListener {
             return Causa;
         }
     }
+
 }
