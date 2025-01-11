@@ -1,0 +1,1 @@
+los turnos se almacenan correctamente, se verifican los turnos existentes, aparecen los turnos segun la fecha indicada. Se debe hacer la funcionalidad de cancelar turnos, de ver la informacion de los turnos etc.
