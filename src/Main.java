@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +53,17 @@ public class Main extends JFrame implements ActionListener {
 
         Turnos = new JList(TurnosDeUnDia);
         Turnos.setBounds(40,50,210,330);
+        Turnos.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int i = Turnos.getSelectedIndex();
+                try{
+                Info.setText(TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
+                }catch (Exception ex){
+                    System.out.println("Error en la linea 63");
+                }
+            }
+        });
         add(Turnos);
 
         Fecha = new JTextField();
@@ -77,12 +90,11 @@ public class Main extends JFrame implements ActionListener {
         add(Dia);
     }
 
-    //Agregar Turnos
+    /*Se agregan los turnos, se almacenan los datos de los turnos*/
     class AgregarTurno extends JFrame implements ActionListener{
 
-        AgregarTurno AT;
         String NombreT, ApellidoT, CausaT;
-        int DiaT, MesT, AnioT, HoraT;
+        Integer DiaT, MesT, AnioT, HoraT;
         JLabel N,A,D,M,An, H;
         JTextField Nombre, Apellido, Dia, Mes, Anio, NumeroTurno;
         JTextArea Causa;
@@ -180,12 +192,12 @@ public class Main extends JFrame implements ActionListener {
                     DiaT = Integer.parseInt(Dia.getText());
                     MesT = Integer.parseInt(Mes.getText());
                     AnioT = Integer.parseInt(Anio.getText());
-                    HoraT = Integer.parseInt(NumeroTurno.getText());
+                    HoraT = Integer.parseInt(NumeroTurno.getText())-1;
 
                     if (TurnosAño.containsKey(AnioT)) {
 
                         if(TurnosAño.get(AnioT)[HoraT][DiaT][MesT] !=null) {
-                            TurnosAño.get(AnioT)[HoraT][DiaT][MesT] = new Turno(HoraT + 7, ApellidoT + " " + NombreT, CausaT);
+                            TurnosAño.get(AnioT)[HoraT-1][DiaT][MesT] = new Turno(HoraT + 7, ApellidoT + " " + NombreT, CausaT);
                         }else throw new RuntimeException("el turno Nº "+HoraT+" ya esta ocupado");
                     } else {
                         TurnosAño.put(AnioT, new Turno[8][31][12]);
@@ -195,7 +207,6 @@ public class Main extends JFrame implements ActionListener {
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(this, ex);
                 }
-
                 dispose();
 
             }
@@ -214,7 +225,7 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-    //Fecha
+    /*Se selecciona la fecha, se agregan los turnos en el JList de los turnos diarios*/
     class Calendario extends JFrame implements ActionListener{
 
         JLabel D,M,A;
