@@ -4,13 +4,13 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Main extends JFrame implements ActionListener {
 
-    int DIA,MES,ANIO;
+    int DIA,MES,ANIO, I;
+
+    Calendario almanaque = new Calendario();
 
     HashMap<Integer,Turno[][][]> TurnosAño = new HashMap<>();
     DefaultListModel<String> TurnosDeUnDia = new DefaultListModel<>();
@@ -19,9 +19,8 @@ public class Main extends JFrame implements ActionListener {
     JMenuBar menubar;
     JMenu Options, AcercaDe, Atras;
     JButton Cancelar, Agregar, Dia;
-    JTextArea Info;
     JList Turnos;
-    JTextField Fecha;
+    JLabel Fecha,Info;
 
     public Main(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -56,27 +55,30 @@ public class Main extends JFrame implements ActionListener {
         Turnos.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                int i = Turnos.getSelectedIndex();
-                try{
-                Info.setText(TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
-                }catch (Exception ex){
-                    System.out.println("Error en la linea 63");
-                }
+
+                I = Turnos.getSelectedIndex();
+
+                AgregarInfoDeTurnosAlPanel();
+
             }
         });
         add(Turnos);
 
-        Fecha = new JTextField();
+        Fecha = new JLabel();
         Fecha.setBounds(270,50,100,30);
-        Fecha.setEditable(false);
+        Fecha.setBackground(Color.WHITE);
+        Fecha.setOpaque(true);
         add(Fecha);
 
-        Info = new JTextArea();
+        Info = new JLabel();
         Info.setBounds(270,100,190,230);
+        Info.setBackground(Color.WHITE);
+        Info.setOpaque(true);
         add(Info);
 
         Cancelar = new JButton("Cancelar");
         Cancelar.setBounds(270,350,90,30);
+        Cancelar.addActionListener(this);
         add(Cancelar);
 
         Agregar = new JButton("Agregar");
@@ -88,6 +90,117 @@ public class Main extends JFrame implements ActionListener {
         Dia.setBounds(380,50,80,30);
         Dia.addActionListener(this);
         add(Dia);
+    }
+
+    //Eventos del panel principal
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == Dia){
+            almanaque.setVisible(true);
+            TurnosDeUnDia.removeAllElements();
+        }
+        if(e.getSource() == Agregar) {
+            new AgregarTurno();
+        }
+        if(e.getSource() == Cancelar){
+            try {
+                TurnosAño.get(ANIO)[I][DIA][MES] = null;
+                AgregarTunosALaLista();
+            }catch (Exception ex){
+                System.out.println(ex);
+            }
+        }
+    }
+
+    /*Se selecciona la fecha, se agregan los turnos en el JList de los turnos diarios*/
+    class Calendario extends JFrame implements ActionListener{
+
+        JLabel D,M,A;
+        JTextField Dias, Meses, Anios;
+        JButton Aceptar;
+
+        public Calendario(){
+            setLayout(null);
+            setSize(315,150);
+            setLocationRelativeTo(null);
+            setResizable(false);
+
+            Init();
+            setVisible(false);
+            setDefaultCloseOperation(2);
+        }
+
+        private void Init(){
+
+            D = new JLabel("Dia");
+            D.setBounds(30,0,100,30);
+            add(D);
+
+            Dias = new JTextField();
+            Dias.setBounds(30,30,75,30);
+            add(Dias);
+
+            M = new JLabel("Mes");
+            M.setBounds(115,0,100,30);
+            add(M);
+
+            Meses = new JTextField();
+            Meses.setBounds(115,30,75,30);
+            add(Meses);
+
+            A = new JLabel("Año");
+            A.setBounds(200,0,100,30);
+            add(A);
+
+            Anios = new JTextField();
+            Anios.setBounds(200,30,75,30);
+            add(Anios);
+
+            Aceptar = new JButton("Aceptar");
+            Aceptar.setBounds(102,70,100,30);
+            Aceptar.addActionListener(this);
+            add(Aceptar);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == Aceptar){
+                try {
+                    DIA = Integer.parseInt(Dias.getText());
+                    MES = Integer.parseInt(Meses.getText());
+                    ANIO = Integer.parseInt(Anios.getText());
+
+                    if(ANIO<=0) throw new RuntimeException();
+
+                    switch(MES){
+                        case 1, 3, 5, 7, 8, 10, 12 -> {
+                            if(DIA>31 || DIA <= 0) throw new RuntimeException();
+                        }
+                        case 2 -> {
+                            if(ANIO%4 == 0 &&(ANIO%100 != 0 || ANIO%400 == 0)) {
+                                if (DIA > 29 || DIA <= 0) throw new RuntimeException();
+                            }else if (DIA > 28 || DIA <= 0) throw new RuntimeException();
+                        }
+                        case 4, 6, 9, 11 -> {
+                            if(DIA>30 || DIA <= 0) throw new RuntimeException();
+                        }
+                        default -> throw new RuntimeException();
+                    }
+
+                    Fecha.setText(DIA+"/"+MES+"/"+ANIO);
+
+                    AgregarTunosALaLista();
+
+                    dispose();
+
+                }catch (RuntimeException ex) {
+                    JOptionPane.showMessageDialog(this,"Ingrese una fecha valida");
+                    Dias.setText("");
+                    Meses.setText("");
+                    Anios.setText("");
+                }
+            }
+        }
     }
 
     /*Se agregan los turnos, se almacenan los datos de los turnos*/
@@ -175,9 +288,11 @@ public class Main extends JFrame implements ActionListener {
 
             Cancelar = new JButton("Cancelar");
             Cancelar.setBounds(260,245,100,30);
+            Cancelar.addActionListener(this);
             add(Cancelar);
         }
 
+        //REVISAR
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -196,8 +311,14 @@ public class Main extends JFrame implements ActionListener {
 
                     if (TurnosAño.containsKey(AnioT)) {
 
-                        if(TurnosAño.get(AnioT)[HoraT][DiaT][MesT] !=null) {
-                            TurnosAño.get(AnioT)[HoraT-1][DiaT][MesT] = new Turno(HoraT + 7, ApellidoT + " " + NombreT, CausaT);
+                        if(TurnosAño.get(AnioT)[HoraT][DiaT][MesT] == null) {
+                            TurnosAño.get(AnioT)[HoraT][DiaT][MesT] = new Turno(HoraT+7,ApellidoT
+                                    + " " + NombreT, CausaT);
+
+                            if(ANIO == AnioT && MES == MesT && DIA == DiaT){
+                                AgregarTunosALaLista();
+                            }
+
                         }else throw new RuntimeException("el turno Nº "+HoraT+" ya esta ocupado");
                     } else {
                         TurnosAño.put(AnioT, new Turno[8][31][12]);
@@ -213,119 +334,8 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-    //Eventos del panel principal
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == Dia){
-            new Calendario();
-            TurnosDeUnDia.removeAllElements();
-        }
-        if(e.getSource() == Agregar) {
-            new AgregarTurno();
-        }
-    }
-
-    /*Se selecciona la fecha, se agregan los turnos en el JList de los turnos diarios*/
-    class Calendario extends JFrame implements ActionListener{
-
-        JLabel D,M,A;
-        JTextField Dias, Meses, Anios;
-        JButton Aceptar;
-
-        public Calendario(){
-            setLayout(null);
-            setSize(315,150);
-            setLocationRelativeTo(null);
-            setResizable(false);
-
-            Init();
-            setVisible(true);
-            setDefaultCloseOperation(2);
-        }
-
-        private void Init(){
-
-            D = new JLabel("Dia");
-            D.setBounds(30,0,100,30);
-            add(D);
-
-            Dias = new JTextField();
-            Dias.setBounds(30,30,75,30);
-            add(Dias);
-
-            M = new JLabel("Mes");
-            M.setBounds(115,0,100,30);
-            add(M);
-
-            Meses = new JTextField();
-            Meses.setBounds(115,30,75,30);
-            add(Meses);
-
-            A = new JLabel("Año");
-            A.setBounds(200,0,100,30);
-            add(A);
-
-            Anios = new JTextField();
-            Anios.setBounds(200,30,75,30);
-            add(Anios);
-
-            Aceptar = new JButton("Aceptar");
-            Aceptar.setBounds(102,70,100,30);
-            Aceptar.addActionListener(this);
-            add(Aceptar);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(e.getSource() == Aceptar){
-                try {
-                    DIA = Integer.parseInt(Dias.getText());
-                    MES = Integer.parseInt(Meses.getText());
-                    ANIO = Integer.parseInt(Anios.getText());
-
-                    if(ANIO<=0) throw new RuntimeException();
-
-                    switch(MES){
-                        case 1, 3, 5, 7, 8, 10, 12 -> {
-                            if(DIA>31 || DIA <= 0) throw new RuntimeException();
-                        }
-                        case 2 -> {
-                            if(ANIO%4 == 0 &&(ANIO%100 != 0 || ANIO%400 == 0)) {
-                                if (DIA > 29 || DIA <= 0) throw new RuntimeException();
-                            }else if (DIA > 28 || DIA <= 0) throw new RuntimeException();
-                        }
-                        case 4, 6, 9, 11 -> {
-                            if(DIA>30 || DIA <= 0) throw new RuntimeException();
-                        }
-                        default -> throw new RuntimeException();
-                    }
-
-                    Fecha.setText(DIA+"/"+MES+"/"+ANIO);
-
-
-                    for(int i = 0; i < 8; i++){
-                        if(TurnosAño.get(ANIO)[i][DIA][MES]!= null) {
-                            TurnosDeUnDia.addElement((i+1)+"º Turno: "+TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
-                        }else{
-                            TurnosDeUnDia.addElement((i+1)+"º Turno: VACIO");
-                        }
-                    }
-
-                    dispose();
-
-                }catch (RuntimeException ex) {
-                    JOptionPane.showMessageDialog(this,"Ingrese una fecha valida");
-                    Dias.setText("");
-                    Meses.setText("");
-                    Anios.setText("");
-                }
-            }
-        }
-    }
-
-    //Test
     private class Turno{
-        private int Horario;
+        private int Horario = 0;
         private String NombrePaciente, Causa;
 
         public Turno(int Horario, String NombrePaciente, String Causa){
@@ -344,6 +354,28 @@ public class Main extends JFrame implements ActionListener {
 
         public String getCausa() {
             return Causa;
+        }
+    }
+
+    private void AgregarInfoDeTurnosAlPanel(){
+        try{
+            Turno T = TurnosAño.get(ANIO)[I][DIA][MES];
+            Info.setText("");
+            Info.setText(T.NombrePaciente+"\nHora del turnos: "+T.getHorario()+"\nCausa del turnos: "+T.getCausa());
+        }catch (Exception ex){
+            Info.setText("");
+            Info.setText("Turno disponible");
+        }
+    }
+
+    private void AgregarTunosALaLista(){
+        TurnosDeUnDia.removeAllElements();
+        for(int i = 0; i < 8; i++){
+            if(TurnosAño.get(ANIO)[i][DIA][MES]!= null) {
+                TurnosDeUnDia.addElement((i+1)+"º Turno: "+TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
+            }else{
+                TurnosDeUnDia.addElement((i+1)+"º Turno: VACIO");
+            }
         }
     }
 
