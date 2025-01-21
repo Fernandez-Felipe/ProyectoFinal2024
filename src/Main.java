@@ -170,22 +170,7 @@ public class Main extends JFrame implements ActionListener {
                     MES = Integer.parseInt(Meses.getText());
                     ANIO = Integer.parseInt(Anios.getText());
 
-                    if(ANIO<=0) throw new RuntimeException();
-
-                    switch(MES){
-                        case 1, 3, 5, 7, 8, 10, 12 -> {
-                            if(DIA>31 || DIA <= 0) throw new RuntimeException();
-                        }
-                        case 2 -> {
-                            if(ANIO%4 == 0 &&(ANIO%100 != 0 || ANIO%400 == 0)) {
-                                if (DIA > 29 || DIA <= 0) throw new RuntimeException();
-                            }else if (DIA > 28 || DIA <= 0) throw new RuntimeException();
-                        }
-                        case 4, 6, 9, 11 -> {
-                            if(DIA>30 || DIA <= 0) throw new RuntimeException();
-                        }
-                        default -> throw new RuntimeException();
-                    }
+                    VerificarFechas(DIA,MES,ANIO);
 
                     Fecha.setText(DIA+"/"+MES+"/"+ANIO);
 
@@ -194,7 +179,7 @@ public class Main extends JFrame implements ActionListener {
                     dispose();
 
                 }catch (RuntimeException ex) {
-                    JOptionPane.showMessageDialog(this,"Ingrese una fecha valida");
+                    JOptionPane.showMessageDialog(this,ex);
                     Dias.setText("");
                     Meses.setText("");
                     Anios.setText("");
@@ -292,22 +277,29 @@ public class Main extends JFrame implements ActionListener {
             add(Cancelar);
         }
 
-        //REVISAR
         @Override
         public void actionPerformed(ActionEvent e) {
 
             if (e.getSource() == Aceptar) {
 
-                NombreT = Nombre.getText();
-                ApellidoT = Apellido.getText();
-                CausaT = Causa.getText();
-
                 try {
+
+                    NombreT = Nombre.getText();
+                    ApellidoT = Apellido.getText();
+                    CausaT = Causa.getText();
+
+                    if(NombreT.equals("") || ApellidoT.equals("") || CausaT.equals("")){
+                        throw  new RuntimeException("Complete todos las casillas");
+                    }
 
                     DiaT = Integer.parseInt(Dia.getText());
                     MesT = Integer.parseInt(Mes.getText());
                     AnioT = Integer.parseInt(Anio.getText());
                     HoraT = Integer.parseInt(NumeroTurno.getText())-1;
+
+                    VerificarFechas(DiaT,MesT,AnioT);
+
+                    if(HoraT < 1 || HoraT > 8) throw new RuntimeException("Ingrese un turno valido");
 
                     if (TurnosAño.containsKey(AnioT)) {
 
@@ -322,13 +314,17 @@ public class Main extends JFrame implements ActionListener {
                         }else throw new RuntimeException("el turno Nº "+HoraT+" ya esta ocupado");
                     } else {
                         TurnosAño.put(AnioT, new Turno[8][31][12]);
-                        TurnosAño.get(AnioT)[HoraT][DiaT][MesT] = new Turno(HoraT, ApellidoT + " " + NombreT, CausaT);
+                        TurnosAño.get(AnioT)[HoraT][DiaT][MesT] = new Turno(HoraT,ApellidoT+" "+NombreT,CausaT);
+                        if(ANIO == AnioT && MES == MesT && DIA == DiaT){
+                            AgregarTunosALaLista();
+                        }
                     }
+
+                    dispose();
 
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(this, ex);
                 }
-                dispose();
 
             }
         }
@@ -370,12 +366,39 @@ public class Main extends JFrame implements ActionListener {
 
     private void AgregarTunosALaLista(){
         TurnosDeUnDia.removeAllElements();
+
+
         for(int i = 0; i < 8; i++){
+            if(!(TurnosAño.containsKey(ANIO))){
+                for(int e = 0; e < 8; e++){
+                    TurnosDeUnDia.addElement((e+1)+"º Turno: VACIO");
+                }
+                break;
+            }
             if(TurnosAño.get(ANIO)[i][DIA][MES]!= null) {
                 TurnosDeUnDia.addElement((i+1)+"º Turno: "+TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
             }else{
                 TurnosDeUnDia.addElement((i+1)+"º Turno: VACIO");
             }
+        }
+    }
+
+    private void VerificarFechas(int dia, int mes, int anio){
+        if(anio<=0) throw new RuntimeException();
+
+        switch(mes){
+            case 1, 3, 5, 7, 8, 10, 12 -> {
+                if(dia>31 || dia <= 0) throw new RuntimeException("Ingrese uan fecha valida");
+            }
+            case 2 -> {
+                if(anio%4 == 0 &&(anio%100 != 0 || dia%400 == 0)) {
+                    if (dia > 29 || dia <= 0) throw new RuntimeException("Ingrese uan fecha valida");
+                }else if (dia > 28 || dia <= 0) throw new RuntimeException("Ingrese uan fecha valida");
+            }
+            case 4, 6, 9, 11 -> {
+                if(dia>30 || dia <= 0) throw new RuntimeException("Ingrese uan fecha valida");
+            }
+            default -> throw new RuntimeException("Ingrese uan fecha valida");
         }
     }
 
