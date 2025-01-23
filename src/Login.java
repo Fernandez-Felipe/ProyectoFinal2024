@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 public class Login extends JFrame implements ActionListener {
 
@@ -73,5 +74,11 @@ public class Login extends JFrame implements ActionListener {
     public static void main(String[] args) {
         new Login();
     }
+
+    public void ValidarDatos(String Usser, String Password){
+
+    }
+
+
 
 }
