@@ -1,6 +1,8 @@
 package DataBase;
 
-public class Turno{
+import java.io.Serializable;
+
+public class Turno implements Serializable {
     private int Horario = 0;
     private String NombrePaciente, Causa;
 
@@ -20,5 +22,14 @@ public class Turno{
 
     public String getCausa() {
         return Causa;
+    }
+
+    @Override
+    public String toString() {
+        return "Turno{" +
+                "Horario=" + Horario +
+                ", NombrePaciente='" + NombrePaciente + '\'' +
+                ", Causa='" + Causa + '\'' +
+                '}';
     }
 }

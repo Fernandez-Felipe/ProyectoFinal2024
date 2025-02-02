@@ -30,11 +30,4 @@ public class Usser implements Serializable {
         TurnosAño = turnosAño;
     }
 
-    @Override
-    public String toString() {
-        return "Usser{" +
-                "Nombre='" + Nombre + '\'' +
-                ", Contrasenia='" + Contrasenia + '\'' +
-                '}';
-    }
 }

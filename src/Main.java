@@ -1,3 +1,4 @@
+import DataBase.SaveData;
 import DataBase.Turno;
 
 import javax.swing.*;
@@ -6,11 +7,18 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import DataBase.Usser;
+import DataBase.LoadData;
 
 public class Main extends JFrame implements ActionListener {
 
     int DIA,MES,ANIO, I;
+    private String UsuarioActual;
 
     Calendario almanaque = new Calendario();
 
@@ -24,9 +32,10 @@ public class Main extends JFrame implements ActionListener {
     JList Turnos;
     JLabel Fecha,Info;
 
-    public Main(HashMap<Integer,Turno[][][]> TurnosAño){
+    public Main(HashMap<Integer,Turno[][][]> TurnosAño, String UsuarioActual){
 
         this.TurnosAño = TurnosAño;
+        this.UsuarioActual = UsuarioActual;
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
@@ -325,10 +334,33 @@ public class Main extends JFrame implements ActionListener {
                         }
                     }
 
+                    LoadData ld = new LoadData();
+                    ArrayList<Usser> UsuariosActuales = ld.CargarUsuarios();
+
+                    UsuariosActuales.stream().filter(User -> User.getNombre().equals(UsuarioActual)).forEach(user ->{
+
+                        user.setTurnosAño(TurnosAño);
+
+                    });
+
+                    ObjectOutputStream Reesccribir = new ObjectOutputStream(new FileOutputStream("DataBase/Usuarios.bin"));
+
+                    UsuariosActuales.stream().forEach(U ->{
+
+                        try {
+                            Reesccribir.writeObject(U);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+
+                    });
+
                     dispose();
 
                 } catch (RuntimeException ex) {
                     JOptionPane.showMessageDialog(this, ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
 
             }

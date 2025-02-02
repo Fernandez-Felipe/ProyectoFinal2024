@@ -92,7 +92,7 @@ public class Login extends JFrame implements ActionListener {
                         Usser UsuarioLeido = (Usser) OIS.readObject();
 
                         if(ValidarDatos(TFEmail.getText(),TFPassword.getText(),UsuarioLeido)){
-                            new Main(UsuarioLeido.getTurnosAño());
+                            new Main(UsuarioLeido.getTurnosAño(),UsuarioLeido.getNombre());
                             this.setVisible(false);
                             break;
                         }
