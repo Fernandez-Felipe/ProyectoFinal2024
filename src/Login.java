@@ -101,9 +101,8 @@ public class Login extends JFrame implements ActionListener {
                     }
 
                 }
-
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                JOptionPane.showMessageDialog(this,"Usuario o contraseña inconrrectos");
             }
         }
         if(e.getSource() == Registrase){
@@ -119,7 +118,6 @@ public class Login extends JFrame implements ActionListener {
 
     private class Register extends JFrame implements ActionListener{
 
-        JTextArea Mensaje;
         JLabel NombreReg, ContraseniaReg;
         JTextField NameReg, PassWordReg;
         JButton AceptarReg, CancelarReg;
@@ -173,13 +171,16 @@ public class Login extends JFrame implements ActionListener {
 
             if(e.getSource() == AceptarReg){
 
-                Usser NuevoUsuario = new Usser(NameReg.getText(),PassWordReg.getText());
-                try {
-                    SaveData SD = new SaveData(NuevoUsuario);
-                    SD.Save();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                if(!(NameReg.equals("") && PassWordReg.equals(""))) {
+                    Usser NuevoUsuario = new Usser(NameReg.getText(), PassWordReg.getText());
+                    try {
+                        SaveData SD = new SaveData(NuevoUsuario);
+                        SD.Save();
+                        dispose();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else JOptionPane.showMessageDialog(this,"Complete todas las casillas");
 
             }
 

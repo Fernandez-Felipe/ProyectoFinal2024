@@ -19,4 +19,11 @@ public class Usser implements Serializable {
         this.Contrasenia = Contrasenia;
     }
 
+    @Override
+    public String toString() {
+        return "Usser{" +
+                "Nombre='" + Nombre + '\'' +
+                ", Contrasenia='" + Contrasenia + '\'' +
+                '}';
+    }
 }
