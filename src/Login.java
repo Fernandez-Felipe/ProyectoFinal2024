@@ -1,9 +1,14 @@
+import DataBase.SaveData;
 import DataBase.Usser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 public class Login extends JFrame implements ActionListener {
 
@@ -42,7 +47,7 @@ public class Login extends JFrame implements ActionListener {
         Bienvenida.setForeground(Color.black);
         add(Bienvenida);
 
-        Email = new JLabel("Email");
+        Email = new JLabel("Usuario");
         Email.setBounds(50,170,100,30);
         add(Email);
 
@@ -70,12 +75,36 @@ public class Login extends JFrame implements ActionListener {
 
     }
 
+    //Intento de validar a un usuario
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == Entrar){
-            new Main();
-            this.setVisible(false);
+
+            try {
+                ObjectInputStream OIS = new ObjectInputStream(new FileInputStream("DataBase/Usuarios.bin"));
+
+                while(true){
+
+                    try {
+                        Usser UsuarioLeido = (Usser) OIS.readObject();
+
+                        if(ValidarDatos(TFEmail.getText(),TFPassword.getText(),UsuarioLeido)){
+                            new Main();
+                            this.setVisible(false);
+                            break;
+                        }
+
+                    }catch (EOFException | ClassNotFoundException ex){
+                        JOptionPane.showMessageDialog(this,"Usuario o contraseña inconrrectos");
+                        break;
+                    }
+
+                }
+
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         if(e.getSource() == Registrase){
             new Register();
@@ -83,12 +112,9 @@ public class Login extends JFrame implements ActionListener {
 
     }
 
-    public void ValidarDatos(String Usser, String Password){
+    public boolean ValidarDatos(String Name, String Password, Usser Usuario){
 
-    }
-
-    public void AddUser(){
-
+        return Name.equals(Usuario.getNombre()) && Password.equals(Usuario.getContrasenia());
     }
 
     private class Register extends JFrame implements ActionListener{
@@ -148,14 +174,12 @@ public class Login extends JFrame implements ActionListener {
             if(e.getSource() == AceptarReg){
 
                 Usser NuevoUsuario = new Usser(NameReg.getText(),PassWordReg.getText());
-
-                /*try (FileOutputStream fileOut = new FileOutputStream("DataBase/Usuarios.bin");
-                     ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
-                    objOut.writeObject(NuevoUsuario);
-                    System.out.println("Objeto guardado en persona.bin");
+                try {
+                    SaveData SD = new SaveData(NuevoUsuario);
+                    SD.Save();
                 } catch (IOException ex) {
-                    ex.printStackTrace();
-                }*/
+                    throw new RuntimeException(ex);
+                }
 
             }
 
