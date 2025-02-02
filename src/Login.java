@@ -1,4 +1,5 @@
 import DataBase.SaveData;
+import DataBase.Turno;
 import DataBase.Usser;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 
 public class Login extends JFrame implements ActionListener {
 
@@ -90,7 +92,7 @@ public class Login extends JFrame implements ActionListener {
                         Usser UsuarioLeido = (Usser) OIS.readObject();
 
                         if(ValidarDatos(TFEmail.getText(),TFPassword.getText(),UsuarioLeido)){
-                            new Main();
+                            new Main(UsuarioLeido.getTurnosAño());
                             this.setVisible(false);
                             break;
                         }
@@ -172,7 +174,7 @@ public class Login extends JFrame implements ActionListener {
             if(e.getSource() == AceptarReg){
 
                 if(!(NameReg.equals("") && PassWordReg.equals(""))) {
-                    Usser NuevoUsuario = new Usser(NameReg.getText(), PassWordReg.getText());
+                    Usser NuevoUsuario = new Usser(NameReg.getText(), PassWordReg.getText(),new HashMap<Integer, Turno[][][]>());
                     try {
                         SaveData SD = new SaveData(NuevoUsuario);
                         SD.Save();

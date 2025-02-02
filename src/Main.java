@@ -1,3 +1,5 @@
+import DataBase.Turno;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -12,7 +14,7 @@ public class Main extends JFrame implements ActionListener {
 
     Calendario almanaque = new Calendario();
 
-    HashMap<Integer,Turno[][][]> TurnosAño = new HashMap<>();
+    HashMap<Integer,Turno[][][]> TurnosAño;
     DefaultListModel<String> TurnosDeUnDia = new DefaultListModel<>();
 
     ImagenDeFondo fondo = new ImagenDeFondo(this);
@@ -22,7 +24,10 @@ public class Main extends JFrame implements ActionListener {
     JList Turnos;
     JLabel Fecha,Info;
 
-    public Main(){
+    public Main(HashMap<Integer,Turno[][][]> TurnosAño){
+
+        this.TurnosAño = TurnosAño;
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
         setSize(500,500);
@@ -330,37 +335,14 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-    private class Turno{
-        private int Horario = 0;
-        private String NombrePaciente, Causa;
-
-        public Turno(int Horario, String NombrePaciente, String Causa){
-            this.Horario = Horario;
-            this.NombrePaciente = NombrePaciente;
-            this.Causa = Causa;
-        }
-
-        public int getHorario() {
-            return Horario;
-        }
-
-        public String getNombrePaciente() {
-            return NombrePaciente;
-        }
-
-        public String getCausa() {
-            return Causa;
-        }
-    }
-
     private void AgregarInfoDeTurnosAlPanel(){
         try{
             Turno T = TurnosAño.get(ANIO)[I][DIA][MES];
             Info.setText("");
-            Info.setText(T.NombrePaciente+"\nHora del turnos: "+T.getHorario()+"\nCausa del turnos: "+T.getCausa());
+            Info.setText(T.getNombrePaciente() +"\nHora del turnos: "+T.getHorario()+"\nCausa del turnos: "+T.getCausa());
         }catch (Exception ex){
             Info.setText("");
-            Info.setText("Turno disponible");
+            Info.setText("DataBase.Turno disponible");
         }
     }
 
@@ -371,14 +353,14 @@ public class Main extends JFrame implements ActionListener {
         for(int i = 0; i < 8; i++){
             if(!(TurnosAño.containsKey(ANIO))){
                 for(int e = 0; e < 8; e++){
-                    TurnosDeUnDia.addElement((e+1)+"º Turno: VACIO");
+                    TurnosDeUnDia.addElement((e+1)+"º DataBase.Turno: VACIO");
                 }
                 break;
             }
             if(TurnosAño.get(ANIO)[i][DIA][MES]!= null) {
-                TurnosDeUnDia.addElement((i+1)+"º Turno: "+TurnosAño.get(ANIO)[i][DIA][MES].NombrePaciente);
+                TurnosDeUnDia.addElement((i+1)+"º DataBase.Turno: "+ TurnosAño.get(ANIO)[i][DIA][MES].getNombrePaciente());
             }else{
-                TurnosDeUnDia.addElement((i+1)+"º Turno: VACIO");
+                TurnosDeUnDia.addElement((i+1)+"º DataBase.Turno: VACIO");
             }
         }
     }
