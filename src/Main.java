@@ -1,4 +1,4 @@
-import DataBase.SaveData;
+
 import DataBase.Turno;
 
 import javax.swing.*;
@@ -27,10 +27,12 @@ public class Main extends JFrame implements ActionListener {
 
     ImagenDeFondo fondo = new ImagenDeFondo(this);
     JMenuBar menubar;
-    JMenu Options, AcercaDe, Atras;
+    JMenu Options;
+    JMenuItem Atras;
     JButton Cancelar, Agregar, Dia;
     JList Turnos;
-    JLabel Fecha,Info;
+    JLabel Fecha;
+    JTextArea Info;
 
     public Main(HashMap<Integer,Turno[][][]> TurnosAño, String UsuarioActual){
 
@@ -58,11 +60,9 @@ public class Main extends JFrame implements ActionListener {
         Options = new JMenu("Opciones");
         menubar.add(Options);
 
-        AcercaDe = new JMenu("Acerca de");
-        menubar.add(AcercaDe);
-
-        Atras = new JMenu("Atras");
-        menubar.add(Atras);
+        Atras = new JMenuItem("Salir");
+        Atras.addActionListener(this);
+        Options.add(Atras);
 
         Turnos = new JList(TurnosDeUnDia);
         Turnos.setBounds(40,50,210,330);
@@ -84,7 +84,7 @@ public class Main extends JFrame implements ActionListener {
         Fecha.setOpaque(true);
         add(Fecha);
 
-        Info = new JLabel();
+        Info = new JTextArea(10,30);
         Info.setBounds(270,100,190,230);
         Info.setBackground(Color.WHITE);
         Info.setOpaque(true);
@@ -120,9 +120,15 @@ public class Main extends JFrame implements ActionListener {
             try {
                 TurnosAño.get(ANIO)[I][DIA][MES] = null;
                 AgregarTunosALaLista();
+                ActualizarDatos();
             }catch (Exception ex){
                 System.out.println(ex);
             }
+        }
+
+        if(e.getSource() == Atras){
+            new Login();
+            dispose();
         }
     }
 
@@ -313,7 +319,7 @@ public class Main extends JFrame implements ActionListener {
 
                     VerificarFechas(DiaT,MesT,AnioT);
 
-                    if(HoraT < 1 || HoraT > 8) throw new RuntimeException("Ingrese un turno valido");
+                    if(!(HoraT>=0 && HoraT<=8)) throw new RuntimeException("Ingrese un turno valido");
 
                     if (TurnosAño.containsKey(AnioT)) {
 
@@ -334,26 +340,7 @@ public class Main extends JFrame implements ActionListener {
                         }
                     }
 
-                    LoadData ld = new LoadData();
-                    ArrayList<Usser> UsuariosActuales = ld.CargarUsuarios();
-
-                    UsuariosActuales.stream().filter(User -> User.getNombre().equals(UsuarioActual)).forEach(user ->{
-
-                        user.setTurnosAño(TurnosAño);
-
-                    });
-
-                    ObjectOutputStream Reesccribir = new ObjectOutputStream(new FileOutputStream("DataBase/Usuarios.bin"));
-
-                    UsuariosActuales.stream().forEach(U ->{
-
-                        try {
-                            Reesccribir.writeObject(U);
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                    });
+                    ActualizarDatos();
 
                     dispose();
 
@@ -371,10 +358,10 @@ public class Main extends JFrame implements ActionListener {
         try{
             Turno T = TurnosAño.get(ANIO)[I][DIA][MES];
             Info.setText("");
-            Info.setText(T.getNombrePaciente() +"\nHora del turnos: "+T.getHorario()+"\nCausa del turnos: "+T.getCausa());
+            Info.setText(T.getNombrePaciente() +"\nHora del turno: "+T.getHorario()+" Horas"+"\nCausa del turnos: "+T.getCausa());
         }catch (Exception ex){
             Info.setText("");
-            Info.setText("DataBase.Turno disponible");
+            Info.setText("Turno disponible");
         }
     }
 
@@ -385,14 +372,14 @@ public class Main extends JFrame implements ActionListener {
         for(int i = 0; i < 8; i++){
             if(!(TurnosAño.containsKey(ANIO))){
                 for(int e = 0; e < 8; e++){
-                    TurnosDeUnDia.addElement((e+1)+"º DataBase.Turno: VACIO");
+                    TurnosDeUnDia.addElement((e+1)+"º Turno: VACIO");
                 }
                 break;
             }
             if(TurnosAño.get(ANIO)[i][DIA][MES]!= null) {
-                TurnosDeUnDia.addElement((i+1)+"º DataBase.Turno: "+ TurnosAño.get(ANIO)[i][DIA][MES].getNombrePaciente());
+                TurnosDeUnDia.addElement((i+1)+"º Turno: "+ TurnosAño.get(ANIO)[i][DIA][MES].getNombrePaciente());
             }else{
-                TurnosDeUnDia.addElement((i+1)+"º DataBase.Turno: VACIO");
+                TurnosDeUnDia.addElement((i+1)+"º Turno: VACIO");
             }
         }
     }
@@ -414,6 +401,29 @@ public class Main extends JFrame implements ActionListener {
             }
             default -> throw new RuntimeException("Ingrese uan fecha valida");
         }
+    }
+
+    private void ActualizarDatos() throws IOException {
+        LoadData ld = new LoadData();
+        ArrayList<Usser> UsuariosActuales = ld.CargarUsuarios();
+
+        UsuariosActuales.stream().filter(User -> User.getNombre().equals(UsuarioActual)).forEach(user ->{
+
+            user.setTurnosAño(TurnosAño);
+
+        });
+
+        ObjectOutputStream Reesccribir = new ObjectOutputStream(new FileOutputStream("DataBase/Usuarios.bin"));
+
+        UsuariosActuales.stream().forEach(U ->{
+
+            try {
+                Reesccribir.writeObject(U);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
     }
 
 }
