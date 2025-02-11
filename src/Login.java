@@ -1,3 +1,4 @@
+import DataBase.LoadData;
 import DataBase.SaveData;
 import DataBase.Turno;
 import DataBase.Usser;
@@ -10,13 +11,10 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Login extends JFrame implements ActionListener {
-
-    public static void main(String[] args) {
-        new Login();
-    }
 
     Point Ubicacion;
     JLabel Bienvenida, Email, Password;
@@ -173,20 +171,54 @@ public class Login extends JFrame implements ActionListener {
 
             if(e.getSource() == AceptarReg){
 
-                if(!(NameReg.equals("") && PassWordReg.equals(""))) {
-                    Usser NuevoUsuario = new Usser(NameReg.getText(), PassWordReg.getText(),new HashMap<Integer, Turno[][][]>());
-                    try {
-                        SaveData SD = new SaveData(NuevoUsuario);
-                        SD.Save();
-                        dispose();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+               if(!(NameReg.getText().equals("") && PassWordReg.getText().equals(""))) {
+
+                   if(LeerUsuarios()){
+                       JOptionPane.showMessageDialog(this,"El usuario: "+NameReg.getText()+" ya Existe");
+                       NameReg.setText("");
+                       PassWordReg.setText("");
+                   }else {
+                       AddUsser();
+                   }
+
                 } else JOptionPane.showMessageDialog(this,"Complete todas las casillas");
 
             }
+        }
+
+        private void AddUsser(){
+            Usser NuevoUsuario = new Usser(NameReg.getText(), PassWordReg.getText(),new HashMap<Integer, Turno[][][]>());
+            try {
+                SaveData SD = new SaveData(NuevoUsuario);
+                SD.Save();
+                dispose();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        private boolean LeerUsuarios(){
+
+            boolean UR = false;
+
+            try{
+                LoadData ld = new LoadData();
+                ArrayList<Usser> UsuariosExistentes = ld.CargarUsuarios();
+
+                for(int i = 0; i < UsuariosExistentes.size(); i++){
+
+                    if(UsuariosExistentes.get(i).getNombre().equals(NameReg.getText())){
+                        System.out.println("El usuario: "+UsuariosExistentes.get(i).getNombre()+" ya existe");
+                        UR = true;
+                        break;
+                    }
+
+                }
+            }catch (Exception ex){}
+
+            return UR;
 
         }
+
     }
 
 }
